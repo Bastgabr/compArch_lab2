@@ -14,5 +14,22 @@ entity RAM is
 end RAM;
 
 architecture synth of RAM is
+type reg_type is array(0 to 31) of std_logic_vector(31 downto 0); --normalement 9 downto 0
+signal reg : reg_type := (others => x"00000000");
 begin
+	clk_proc : process(clk, cs, read, write, address, wrdata)
+	begin
+		--Reading register on rising clk
+		--if rising_edge(clk) and read='1' and cs='1' and address <= x"3FF" then
+		if ((rising_edge(clk)) and (read='1') and (cs='1')) then
+			rddata <= reg(to_integer(unsigned(address)));
+		end if;
+
+		--Max address 0x3FF corresponds to 0x1FFC starting from the third LSB
+		--if rising_edge(clk) and cs='1' and write='1' and address <= x"3FF" then 
+		if ((rising_edge(clk)) and (cs='1') and (write='1')) then 
+			reg(to_integer(unsigned(address))) <= wrdata;
+		end if;
+		
+	end process clk_proc;
 end synth;
